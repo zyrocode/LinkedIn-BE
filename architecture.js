@@ -1,0 +1,26 @@
+/* 
+{   
+    _id:...,
+    firstname:...,
+    lastname:...,
+    email:...,
+    bio:...,
+    title:...,
+    area:...,
+    image:...,
+    username:...,
+    experience: {
+                    _id:...,
+                    role:...,
+                    company:...,
+                    startdate:...,
+                    enddate:...,
+                    description:...,
+                    area:...,
+                    username:...,
+                    createdAt:...,
+                    updatedAt:...,
+                    imageAt:...
+                }
+}
+*/ 
