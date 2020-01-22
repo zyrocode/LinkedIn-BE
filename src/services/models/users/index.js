@@ -62,13 +62,19 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     experience: [experienceSchema],
+    image:{
+        type: String,
+        default: "https://soulcore.com/wp-content/uploads/2018/01/profile-placeholder.png"
+    },
     createdAt:{
-        type: Date
+        type: Date,
+        default: Date.now()
     },
     updatedAt:{
-        type: Date
+        type: Date,
+        default: Date.now()
     },
 })
 
-const user = mongoose.model('user', userSchema);
-module.exports = user;
+const userCollection = mongoose.model('user', userSchema,'users');
+module.exports = userCollection;
