@@ -26,23 +26,11 @@ const experienceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    username:{
-        type: String,
-        minlength:5,
-        required: true
-    },
-    createdAt:{
-        type: Date,
-        default: Date.now
-    },
-    updatedAt:{
-        type: Date,
-        default: Date.now
-    },
     image:{
-        type: String
+        type: String,
+        default: "http://www.stleos.uq.edu.au/wp-content/uploads/2016/08/image-placeholder.png"
     }
-})
+},{timestamps: true})
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -57,6 +45,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    userName:{
+        type:String,
+        minlength:4,
+        unique:true
     },
     bio:{
         type: String,
@@ -74,6 +67,8 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
+}, {
+    timestamps: true
 })
 
 const userCollection = mongoose.model('user', userSchema,'users');
