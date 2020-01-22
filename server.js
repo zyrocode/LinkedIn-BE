@@ -2,6 +2,7 @@ const express = require ('express');
 const app = express();
 const dotenv = require ('dotenv');
 const cors = require('cors')
+const {join} = require('path')
 const mongoose = require('mongoose');
 const userServices = require('./src/services/users/index');
 const postRouter = require('./src/services/posts/')
@@ -17,6 +18,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/linkedindb",{useNewUrlParser:true, u
 
 app.use(express.json())
 app.use(cors())
+app.use("/posts", express.static(join(__dirname, './public/posts/')))
 app.use('/users', userServices);
 app.use('/api/posts', postRouter)
 

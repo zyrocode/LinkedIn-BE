@@ -84,7 +84,7 @@ router.post("/:postId", upload.single('posts'), async (req, res, next) => {
            return res.status(500).send('select an image')
         
         let fileName = `${req.params.postId}${extname(req.file.originalname)}`
-        let imageUrl = `${req.protocol}://${req.get('host')}/public/posts/${fileName}`
+        let imageUrl = `${req.protocol}://${req.get('host')}/posts/${fileName}`
         req.body.image = imageUrl
        let updateRequest = await posts.findOneAndUpdate({_id: req.params.postId}, {...req.body}, {new: true})
 
@@ -94,4 +94,5 @@ router.post("/:postId", upload.single('posts'), async (req, res, next) => {
         
     }
 })
+
 module.exports = router
