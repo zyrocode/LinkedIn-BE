@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const path = require('path');
 const user = require ('../models/users/index');
 
 
@@ -30,11 +30,22 @@ router.post('/', async(req,res)=>{
         console.log(err)
     }
 })
+
+//POST image for users Multer
+// router.post('/:id/images',(req,res)=>{
+    
+// })
+
 router.put('/:id', async(req,res)=>{
     try{
-        const toEdit = user.findByIdAndUpdate(req.params.id, {$set: {...req.body}});
-        res.send(toEdit);
         console.log('editing data');
+        delete req.body._id
+        const edited = await user.findByIdAndUpdate(req.params.id, {$set: {...req.body}});
+        if (edited) {
+            res.send(edited);
+        } else{
+            res.status(404).send('user not found');
+        }
     } catch(err){
         console.log(err)
     }
@@ -42,7 +53,12 @@ router.put('/:id', async(req,res)=>{
 
 router.delete('/:id', async(req,res)=>{
     try{
-        const deleted = user.findByIdAndDelete(req.params.id);
+        const deleted = await user.findByIdAndDelete(req.params.id);
+        if (deleted){
+            res.send('Removed');
+        } else{
+            res.status(404).send('user not found');
+        }
     } catch (err){
         console.log(err)
         res.status(500).send('server error')
@@ -53,6 +69,7 @@ router.delete('/:id', async(req,res)=>{
 
 //Experience
 router.get('/:id/experience', async(req,res)=>{
+    const experience = await user.findById(req.body)
     console.log('Fetching all experience from a user');
 })
 
