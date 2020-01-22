@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const user = require ('../models/users/index');
+const user = require('../models/users/index');
+const pdfGenerator = require("../../pdf/pdfgenerator")
+const path = require("path")
+const fs = require("fs-extra")
 const { ObjectId } = require ('mongodb');
 
 //USER
@@ -13,23 +15,26 @@ router.get('/', async (req,res)=>{
 })
 
 //GET user by id
-router.get('/:id', async (req,res)=>{
+router.get('/:id', async (req, res) => {
     const result = await user.findById(req.params.id);
     console.log('Fetching data by Id');
     res.send(result);
 })
 
 //POST user
-router.post('/', async(req,res)=>{
-    try{
+router.post('/', async (req, res) => {
+    try {
         const result = await user.create(req.body);
         console.log('Posting data');
+
         res.send(result);
     } catch(err){
+
         res.send(err)
         console.log(err);
     }
 })
+
 
 //POST image for users Multer
 // router.post('/:id/images',(req,res)=>{
@@ -134,4 +139,14 @@ router.delete('/:id/experience/:expid', async (req,res)=>{
     }
 })
 
-module.exports = router; 
+//PDF
+router.get('/:id/pdf', async (req, res) => {
+    console.log('pdf');
+    const response = await user.findById(req.params.id)
+    await pdfGenerator(response)
+    const file = path.join(__dirname, `../../pdf/${response._id}.pdf`);
+    res.setHeader("Content-Disposition", `attachment; filename=${response._id}.pdf`);
+    fs.createReadStream(file).pipe(res);
+})
+
+module.exports = router;
