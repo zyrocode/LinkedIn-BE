@@ -19,7 +19,7 @@ app.use('/api/posts', postRouter)
 app.listen(PORT ,()=>{
     console.log(`server active on port ${PORT}`);
 
-const whitelist = ["http://localhost:3000"];
+const whitelist = ["http://localhost:5000"];
 var corsOptions = {
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1 || !origin) {
