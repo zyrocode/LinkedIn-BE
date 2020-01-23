@@ -1,5 +1,5 @@
 {
-  "name": "Linkedin_BE",
+  "name": "linkedinbe",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,8 +8,6 @@
     "dev": "nodemon server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -18,9 +16,12 @@
     "mongodb": "^3.5.2",
     "mongoose": "^5.8.9",
     "multer": "^1.4.2",
+    "json2csv": "^4.5.4",
     "pdfmake": "^0.1.63"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
-  }
+  },
+  "author": "",
+  "license": "ISC"
 }
