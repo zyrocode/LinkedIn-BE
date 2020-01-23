@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const user = require('../models/users/index');
-const pdfGenerator = require("../../pdf/pdfgenerator")
-const path = require("path")
-const fs = require("fs-extra")
+const path = require('path');
+const fs = require('fs-extra');
+const multer = require ('multer');
+const user = require ('../models/users/index');
 const { ObjectId } = require ('mongodb');
 
 //USER
@@ -15,31 +15,45 @@ router.get('/', async (req,res)=>{
 })
 
 //GET user by id
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req,res)=>{
     const result = await user.findById(req.params.id);
     console.log('Fetching data by Id');
     res.send(result);
 })
 
 //POST user
-router.post('/', async (req, res) => {
-    try {
+router.post('/', async(req,res)=>{
+    try{
         const result = await user.create(req.body);
         console.log('Posting data');
-
         res.send(result);
     } catch(err){
-
         res.send(err)
         console.log(err);
     }
 })
 
-
 //POST image for users Multer
-// router.post('/:id/images',(req,res)=>{
-    
-// })
+const multerConfig = multer({});
+router.post('/:id/images/upload',multerConfig.single('profilePic'), async (req,res)=>{
+    try {
+    const ext = path.extname(req.file.originalname);
+    console.log(ext);
+    const fileDestination = path.join("./images/users", req.params.id + ext);
+    console.log(fileDestination);
+    const imageLink = req.protocol + "://" + req.get("host") + "/images/users/" + req.params.id + ext ;
+    console.log(imageLink);
+    await fs.writeFile(fileDestination, req.file.buffer);
+        const userImage = await user.findByIdAndUpdate(req.params.id, {
+            image: imageLink
+        },{
+            new: true
+        });
+        res.send(userImage)
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
 
 router.put('/:id', async(req,res)=>{
     try{
@@ -106,6 +120,26 @@ router.post('/:id/experience', async(req,res)=>{
     }
 })
 
+
+//POST Experience Image (multer)
+router.post('/:id/experience/:expid/image/upload',multerConfig.single('expimage'), async(req,res)=>{
+    const ext = path.extname(req.file.originalname);
+    console.log(ext);
+    const fileDestination = path.join('./images/experience', req.params.expid + ext);
+    console.log(fileDestination);
+    const expImage = req.protocol + "://" + req.get('host') + "/images/experience/" + req.params.expid + ext;
+    console.log(expImage);
+    await fs.writeFile (fileDestination, req.file.buffer);
+    const newImage = await user.updateOne({
+        _id : new ObjectId (req.params.id),
+        "experience._id": new Object (req.params.expid)
+    },{ "$set":
+        {"experience.$.image": expImage}
+    }
+    )
+    console.log(newImage);
+    res.send(newImage)
+})
 //EDIT specific experience on a specific user
 router.patch('/:id/experience/:expid', async(req,res)=>{
     try {
@@ -139,14 +173,4 @@ router.delete('/:id/experience/:expid', async (req,res)=>{
     }
 })
 
-//PDF
-router.get('/:id/pdf', async (req, res) => {
-    console.log('pdf');
-    const response = await user.findById(req.params.id)
-    await pdfGenerator(response)
-    const file = path.join(__dirname, `../../pdf/${response._id}.pdf`);
-    res.setHeader("Content-Disposition", `attachment; filename=${response._id}.pdf`);
-    fs.createReadStream(file).pipe(res);
-})
-
-module.exports = router;
+module.exports = router; 
