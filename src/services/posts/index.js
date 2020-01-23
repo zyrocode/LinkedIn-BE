@@ -3,6 +3,7 @@ const {
 } = require('express')
 const router = Router()
 const posts = require('../models/posts')
+const users = require('../models/users')
 const multer = require('multer')
 const {extname, join} = require('path')
 
@@ -31,6 +32,19 @@ router.post("/", async (req, res) => {
         const request = await posts.create(req.body)
         request.save()
         res.send(request)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
+router.get("/:username", async (req, res) => {
+    try {
+        let post = await posts.find({
+            username: req.params.username
+        })
+        let user = await users.find({username: req.params.username})
+        let response = [{user: user, posts:post}]
+        res.status(200).send(response)
     } catch (error) {
         res.status(500).send(error)
     }
