@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 
 //GET user by id
 router.get('/:id', async (req, res) => {
-    const result = await user.findById(req.params.id);
+    const result = await user.find({username: req.params.id});
     console.log('Fetching data by Id');
     res.send(result);
 })
@@ -48,7 +48,8 @@ router.put('/:id', async (req, res) => {
     try {
         console.log('editing data');
         delete req.body._id;
-        const edited = await user.findByIdAndUpdate(req.params.id, {
+        const userID = await user.find({username: req.params.id})
+        const edited = await user.findByIdAndUpdate(userID[0]._id, {
             $set: {
                 ...req.body
             }
@@ -65,7 +66,8 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        const deleted = await user.findByIdAndDelete(req.params.id);
+        const userID = await user.find({username: req.params.id})
+        const deleted = await user.findByIdAndDelete(userID[0]._id);
         if (deleted) {
             res.send('Removed');
         } else {
@@ -82,15 +84,17 @@ router.delete('/:id', async (req, res) => {
 //Experience
 //GET All experience from user
 router.get('/:id/experience', async (req, res) => {
-    const result = await user.findById(req.params.id);
+    const userID = await user.find({username: req.params.id});
+    const result = await user.findById(userID);
     res.send(result.experience)
     console.log('Fetching all experience from a user');
 })
 
 //GET specific experience from user
 router.get('/:id/experience/:expid', async (req, res) => {
+    const userID = await user.find({username: req.params.id})
     const singleExperience = await user.findOne({
-        _id: new ObjectId(req.params.id),
+        _id: new ObjectId(userID[0]._id),
         "experience._id": new ObjectId(req.params.expid)
     }, {
         "experience.$": 1
@@ -104,23 +108,26 @@ router.get('/:id/experience/:expid', async (req, res) => {
 router.post('/:id/experience', async (req, res) => {
     console.log('posting experience to a user');
     const newExperience = req.body
+    const userID = await user.find({username: req.params.id})
+    console.log(userID[0]._id)
     try {
-        const experience = await user.findByIdAndUpdate(req.params.id, {
+        const experience = await user.findByIdAndUpdate(userID[0]._id, {
             $push: {
                 experience: newExperience
             }
         })
         res.send(experience);
     } catch (err) {
-        res.status(500).send('server error');
+        res.status(500).send(err);
     }
 })
 
 //EDIT specific experience on a specific user
 router.patch('/:id/experience/:expid', async (req, res) => {
     try {
+        const userID = await user.find({username: req.params.id})
         const experience = await user.updateOne({
-            _id: new ObjectId(req.params.id),
+            _id: new ObjectId(userID[0]._id),
             "experience._id": new ObjectId(req.params.expid)
         }, {
             "experience.$": req.body
@@ -138,7 +145,8 @@ router.patch('/:id/experience/:expid', async (req, res) => {
 router.delete('/:id/experience/:expid', async (req, res) => {
     try {
         console.log('deleting an experience from a user');
-        const toDelete = await user.findByIdAndUpdate(req.params.id, {
+        const userID = await user.find({username: req.params.id})
+        const toDelete = await user.findByIdAndUpdate(userID[0]._id, {
             $pull: {
                 experience: {
                     _id: new ObjectId(req.params.expid)
@@ -155,7 +163,8 @@ router.delete('/:id/experience/:expid', async (req, res) => {
 //PDF
 router.get('/:id/pdf', async (req, res) => {
     console.log('pdf');
-    const response = await user.findById(req.params.id)
+    const userID = await user.find({username: req.params.id})
+    const response = await user.findById(userID[0]._id)
     await pdfGenerator(response)
     const file = path.join(__dirname, `../../pdf/${response._id}.pdf`);
     res.setHeader("Content-Disposition", `attachment; filename=${response._id}.pdf`);
@@ -167,7 +176,8 @@ router.get('/:id/pdf', async (req, res) => {
 //CSV
 router.get('/:id/csv', async (req, res) => {
     console.log('csv')
-    const response = await user.findById(req.params.id)
+    const userID = await user.find({username: req.params.id})
+    const response = await user.findById(userID[0]._id)
     const fields = ["role", "company", "area"]
     const opts = {
         fields

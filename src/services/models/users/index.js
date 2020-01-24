@@ -46,18 +46,31 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    userName:{
+    username:{
         type:String,
         minlength:4,
+        required: true,
         unique:true
     },
-    bio:{
+    password:{
         type: String,
+        minlength:4,
+        required: true,
+        unique:true
+    },
+    title:{
+        type: String
+    },
+    area:{
+        type: String
+    },
+    bio:{
+        type: String
     },
     experience: [experienceSchema],
     image:{
         type: String,
-        default: "https://soulcore.com/wp-content/uploads/2018/01/profile-placeholder.png"
+        default: "https://www.shareicon.net/data/512x512/2015/10/02/649910_user_512x512.png"
     },
     createdAt:{
         type: Date,

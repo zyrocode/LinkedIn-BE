@@ -11,7 +11,7 @@ const postsShema = new Schema({
     },
     image: {
         type: String,
-        default: "http://lorempixel.com/400/200/"
+        default: ""
     }
 }, {
     timestamps: true
