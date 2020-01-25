@@ -24,6 +24,35 @@ const upload = multer({
     storage: storage
 })
 
+router.post('/:id/comment', async (req, res) => {
+    try {
+        const newComment = {
+            ...req.body,
+            post: req.params.id
+        }
+        const comment = await posts.findByIdAndUpdate(req.params.id, {
+            $push: {
+                comments: newComment
+            }
+        })
+        res.send(comment.comments);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+/**
+ * Comments
+ * Get all comments
+ */
+router.get('/:id/comment', async (req, res) => {
+    try {
+        const result = await posts.find({_id: req.params.id});
+        res.send(result.comments)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
 /**
  * Posts 
  */
@@ -131,34 +160,9 @@ router.post("/:postId", upload.single('posts'), async (req, res, next) => {
 
     }
 })
-/**
- * Comments
- * Get all comments
- */
-router.get('/{id}/comment', async (req, res) => {
-    try {
-        const result = await posts.findById(req.params.id);
-        res.send(result.comments)
-    } catch (error) {
-        res.status(500).send(error)
-    }
-})
 
-router.post('/:id/comment', async (req, res) => {
-    const newComment = {
-        ...req.body,
-        post: req.params.id
-    }
-    try {
-        const comment = await posts.findByIdAndUpdate(req.params.id, {
-            $push: {
-                comment: newComment
-            }
-        })
-        res.send(comment);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-})
+
+
+
 
 module.exports = router

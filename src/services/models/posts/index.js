@@ -15,7 +15,7 @@ const postsShema = new Schema({
         type: String,
         default: "http://lorempixel.com/400/200/"
     },
-    commnets: [comments],
+    comments: [comments],
     likes: [likes]
 }, {
     timestamps: true
