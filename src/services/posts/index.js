@@ -4,6 +4,9 @@ const {
 const router = Router()
 const posts = require('../models/posts')
 const users = require('../models/users')
+const {
+    ObjectId
+} = require('mongodb')
 const multer = require('multer')
 const {
     extname,
@@ -22,35 +25,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage
-})
-
-router.post('/:id/comment', async (req, res) => {
-    try {
-        const newComment = {
-            ...req.body,
-            post: req.params.id
-        }
-        const comment = await posts.findByIdAndUpdate(req.params.id, {
-            $push: {
-                comments: newComment
-            }
-        })
-        res.send(comment.comments);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-})
-/**
- * Comments
- * Get all comments
- */
-router.get('/:id/comment', async (req, res) => {
-    try {
-        const result = await posts.find({_id: req.params.id});
-        res.send(result.comments)
-    } catch (error) {
-        res.status(500).send(error)
-    }
 })
 
 /**
@@ -75,7 +49,7 @@ router.post("/", async (req, res) => {
     }
 })
 
-router.get("/:username", async (req, res) => {
+router.get("/post/:username", async (req, res) => {
     try {
         let post = await posts.find({
             username: req.params.username
@@ -161,8 +135,127 @@ router.post("/:postId", upload.single('posts'), async (req, res, next) => {
     }
 })
 
+router.post('/:id/comment', async (req, res) => {
+    try {
+        const newComment = {
+            ...req.body,
+            post: req.params.id
+        }
+        const comment = await posts.findByIdAndUpdate(req.params.id, {
+            $push: {
+                comments: newComment
+            }
+        }, {
+            new: true
+        })
+        res.send(comment.comments);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+/**
+ * Comments
+ * Get all comments
+ */
+router.get('/:id/comment', async (req, res) => {
+    try {
+        const result = await posts.find({
+            _id: req.params.id
+        });
+        res.send(result.comments)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 
+/**
+ * GET specific comment 
+ */
+router.get("/:id/comment/:commentId", async (req, res, next) => {
+    try {
+        const singleComment = await posts.findOne({
+            _id: new ObjectId(req.params.id),
+            "comments._id": new ObjectId(req.params.commentId)
+        }, {
+            "comments.$": 1
+        })
+        res.status(200).send(singleComment)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 
+/**
+ * Edit comment
+ */
+router.patch("/:id/comment/:commentId", async (req, res, next) => {
+    try {
+        const comments = await posts.updateOne({
+            _id: new ObjectId(req.params.id),
+            "comments._id": new ObjectId(req.params.commentId)
+        }, {"comments.$": req.body}, {new: true})
+        res.send("succefully edited!!!!")
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 
+/**hh
+ * Delete comment
+ */
+router.delete('/:id/comment/:commentId', async (req, res) => {
+    try {
+        const comment = await posts.findByIdAndUpdate(req.params.id, {
+            $pull: {
+                comments: {
+                    _id: new ObjectId(req.params.commentId)
+                }
+            }
+        });
+        res.send('Removed ')
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 
+/**
+ * Post likes
+ */
+router.post('/:id/likes', async (req, res) => {
+    try {
+        const newLikes = {
+            ...req.body,
+            post: req.params.id
+        }
+        const like = await posts.findByIdAndUpdate(req.params.id, {
+            $push: {
+                likes: newLikes
+            }
+        }, {
+            new: true
+        })
+        res.send(like.likes);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+/**
+ * Delete likes
+ * 
+ */
+
+router.delete('/:id/likes/:likeId', async (req, res) => {
+    try {
+        const like = await posts.findByIdAndUpdate(req.params.id, {
+            $pull: {
+                likes: {
+                    _id: new ObjectId(req.params.likeId)
+                }
+            }
+        });
+        res.send('Removed ')
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 module.exports = router
