@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
+const passportLocalMongoose = require("passport-local-mongoose")
 
 const experienceSchema = new mongoose.Schema({
     role:{
@@ -46,18 +47,25 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    userName:{
+    username:{
         type:String,
         minlength:4,
+        required: true,
         unique:true
     },
+    title:{
+        type: String
+    },
+    area:{
+        type: String
+    },
     bio:{
-        type: String,
+        type: String
     },
     experience: [experienceSchema],
     image:{
         type: String,
-        default: "https://soulcore.com/wp-content/uploads/2018/01/profile-placeholder.png"
+        default: "https://www.shareicon.net/data/512x512/2015/10/02/649910_user_512x512.png"
     },
     createdAt:{
         type: Date,
@@ -67,10 +75,26 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
+    role: {
+        type: String,
+        default: "User"
+    },
+    refreshToken: String,
 }, {
     timestamps: true
 })
 
-const user = mongoose.model('users', userSchema);
-module.exports = user;
+const userSchemas = new mongoose.Schema({
+    role: String,
+    facebookId: String,
+    firstName: String,
+    lastName: String,
+    avatar: String,
+    refreshToken: String,
+    gitHubId: String
+})
+
+userSchemas.plugin(passportLocalMongoose)
+
+module.exports = mongoose.model('users', userSchemas)
 
